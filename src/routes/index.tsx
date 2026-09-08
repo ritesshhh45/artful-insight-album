@@ -35,7 +35,7 @@ function Home() {
       <Header overlay />
 
       {/* HERO */}
-      <section className="relative -mt-[68px] h-dvh w-full overflow-hidden bg-ink">
+      <section className="relative -mt-[57px] h-dvh w-full overflow-hidden bg-ink">
         <img
           src={heroImage}
           alt="11:11 STORE campaign — retro mesh jersey"
