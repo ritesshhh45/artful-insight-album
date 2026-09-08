@@ -4,12 +4,12 @@ import { AnnouncementBar, Footer, Header, MobileBar } from "@/components/SiteChr
 import { ProductCard } from "@/components/ProductCard";
 import { fits, products } from "@/lib/products";
 
-type Search = { fit?: string; q?: string };
+type Search = { fit?: string | undefined; q?: string | undefined };
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (search: Record<string, unknown>): Search => ({
-    fit: typeof search.fit === "string" ? search.fit : undefined,
-    q: typeof search.q === "string" ? search.q : undefined,
+    fit: typeof search["fit"] === "string" ? (search["fit"] as string) : undefined,
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
   }),
   head: () => ({
     meta: [
@@ -59,7 +59,7 @@ function Shop() {
           <input
             defaultValue={q ?? ""}
             placeholder="Search"
-            onChange={(e) => navigate({ search: (s) => ({ ...s, q: e.target.value || undefined }) })}
+            onChange={(e) => navigate({ search: (s: Search): Search => ({ ...s, q: e.target.value || undefined }) })}
             className="border border-input bg-transparent px-3 py-2 text-xs outline-none focus:border-foreground"
           />
           <div className="flex flex-wrap gap-2">
@@ -69,7 +69,9 @@ function Shop() {
                 <button
                   key={f}
                   onClick={() =>
-                    navigate({ search: (s) => ({ ...s, fit: f === "ALL" ? undefined : f }) })
+                    navigate({
+                      search: (s: Search): Search => ({ ...s, fit: f === "ALL" ? undefined : f }),
+                    })
                   }
                   className={`border px-3 py-2 text-[10px] font-bold tracking-[0.18em] transition-colors ${
                     active

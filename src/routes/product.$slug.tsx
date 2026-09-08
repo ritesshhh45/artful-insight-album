@@ -32,7 +32,7 @@ function ProductPage() {
   const product = Route.useLoaderData();
   const cart = useCart();
   const [size, setSize] = useState<string | null>(null);
-  const [colour, setColour] = useState(product.colours[0]);
+  const [colour, setColour] = useState(product.colours[0]!);
   const [err, setErr] = useState(false);
 
   const addToCart = () => {

@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const featured = products[1];
+const featured = products[1]!;
 
 function Home() {
   return (
@@ -153,7 +153,7 @@ function Home() {
                 className="group relative block overflow-hidden bg-secondary"
               >
                 <img
-                  src={products[(i + 2) % products.length].image}
+                  src={products[(i + 2) % products.length]!.image}
                   alt={fit}
                   loading="lazy"
                   className="aspect-[3/4] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-105"
@@ -204,7 +204,7 @@ function Home() {
       {/* STORY */}
       <section id="story" className="relative overflow-hidden bg-ink">
         <img
-          src={products[4].image}
+          src={products[4]!.image}
           alt="11:11 STORE editorial"
           className="h-[80vh] w-full object-cover opacity-55"
         />

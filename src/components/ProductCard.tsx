@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: Product }) {
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            cart.add(product.slug, product.sizes[1] ?? product.sizes[0]);
+            cart.add(product.slug, product.sizes[1] ?? product.sizes[0] ?? "M");
           }}
           className="absolute inset-x-0 bottom-0 translate-y-full bg-primary py-3 text-[11px] font-bold tracking-[0.24em] text-primary-foreground transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-y-0"
         >
