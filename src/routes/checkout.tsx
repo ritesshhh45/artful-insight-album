@@ -4,7 +4,7 @@ import { AnnouncementBar, Footer, Header } from "@/components/SiteChrome";
 import { useCart } from "@/lib/cart";
 import { couponDiscount, findCoupon, inr, type Coupon } from "@/lib/store";
 import { imageUrl, onImageError } from "@/lib/img";
-import { supabase } from "@/integrations/supabase/client";
+import { placeOrder as placeOrderFn } from "@/lib/orders.functions";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
