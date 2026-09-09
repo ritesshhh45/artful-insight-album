@@ -73,50 +73,38 @@ function Checkout() {
     setError(null);
 
     const form = new FormData(e.currentTarget);
-    const payload = {
-      customer_name: String(form.get("customer_name") ?? ""),
-      phone: String(form.get("phone") ?? ""),
-      email: String(form.get("email") ?? ""),
-      address: String(form.get("address") ?? ""),
-      city: String(form.get("city") ?? ""),
-      pincode: String(form.get("pincode") ?? ""),
-      payment_method: pay,
-      coupon_code: coupon?.code ?? null,
-      subtotal: cart.subtotal,
-      discount: off,
-      shipping: cart.shipping,
-      total,
-    };
-
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert(payload)
-      .select("id, order_no")
-      .single();
-
-    if (orderError || !order) {
+    try {
+      const result = await placeOrderFn({
+        data: {
+          customer_name: String(form.get("customer_name") ?? ""),
+          phone: String(form.get("phone") ?? ""),
+          email: String(form.get("email") ?? ""),
+          address: String(form.get("address") ?? ""),
+          city: String(form.get("city") ?? ""),
+          pincode: String(form.get("pincode") ?? ""),
+          payment_method: pay as "UPI" | "CARDS" | "NET BANKING" | "COD",
+          coupon_code: coupon?.code ?? null,
+          items: cart.items.map((l) => ({
+            productId: l.productId,
+            name: l.name,
+            image: l.image,
+            size: l.size,
+            colour: l.colour,
+            qty: l.qty,
+          })),
+        },
+      });
+      cart.clear();
+      setPlaced(result.order_no);
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : "We could not place your order. Please try again.",
+      );
+    } finally {
       setBusy(false);
-      return setError("We could not place your order. Please try again.");
     }
-
-    const { error: itemsError } = await supabase.from("order_items").insert(
-      cart.items.map((l) => ({
-        order_id: order.id,
-        product_id: l.productId,
-        name: l.name,
-        image: l.image,
-        size: l.size,
-        colour: l.colour,
-        qty: l.qty,
-        price: l.price,
-      })),
-    );
-
-    setBusy(false);
-    if (itemsError) return setError("We could not save your items. Please try again.");
-
-    cart.clear();
-    setPlaced(order.order_no);
   };
 
   return (
