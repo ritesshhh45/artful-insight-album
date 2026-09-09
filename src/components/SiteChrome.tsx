@@ -1,11 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useCart } from "@/lib/cart";
+import { homepageQuery } from "@/lib/store";
 
 export function AnnouncementBar() {
+  const { data } = useQuery(homepageQuery());
   return (
     <div className="bg-ink py-2 text-center text-[10px] font-semibold tracking-[0.26em] text-primary-foreground">
-      NEW DROP IS LIVE &nbsp;•&nbsp; FREE SHIPPING ABOVE ₹999
+      {data?.announcement ?? "NEW DROP IS LIVE  •  FREE SHIPPING ABOVE ₹999"}
     </div>
   );
 }
@@ -63,10 +66,7 @@ export function MobileBar() {
   const cart = useCart();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 border-t border-border bg-background/95 backdrop-blur md:hidden">
-      <Link
-        to="/shop"
-        className="py-4 text-center text-[11px] font-bold tracking-[0.26em]"
-      >
+      <Link to="/shop" className="py-4 text-center text-[11px] font-bold tracking-[0.26em]">
         SHOP
       </Link>
       <button
@@ -95,9 +95,10 @@ export function Footer() {
           <p className="mt-2">SECURE CHECKOUT</p>
         </div>
       </div>
-      <p className="mx-auto mt-12 max-w-[1400px] text-[10px] tracking-[0.24em] text-primary-foreground/40">
-        © {new Date().getFullYear()} 11:11 STORE
-      </p>
+      <div className="mx-auto mt-12 flex max-w-[1400px] flex-col gap-2 text-[10px] tracking-[0.24em] text-primary-foreground/40 sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} 11:11 STORE</p>
+        <p className="tracking-[0.2em]">Developed by Ritesh Pawar</p>
+      </div>
     </footer>
   );
 }

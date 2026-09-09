@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { homepageQuery } from "@/lib/store";
 
 const KEY = "1111-offer-dismissed";
 
 export function OfferPopup() {
+  const { data } = useQuery(homepageQuery());
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -17,7 +20,7 @@ export function OfferPopup() {
     setOpen(false);
   };
 
-  if (!open) return null;
+  if (!open || !data || !data.offer_active) return null;
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-ink/60 px-4 backdrop-blur-sm fadein">
@@ -30,18 +33,16 @@ export function OfferPopup() {
         </button>
         {done ? (
           <>
-            <h3 className="text-2xl">CODE 1111OFF</h3>
+            <h3 className="text-2xl">CODE {data.offer_code}</h3>
             <p className="mt-3 text-sm text-muted-foreground">
-              Apply it at checkout for 10% off your first order.
+              Apply it at checkout for {data.offer_percent}% off your first order.
             </p>
           </>
         ) : (
           <>
             <p className="eyebrow text-accent">FIRST ORDER</p>
-            <h3 className="mt-3 text-3xl leading-none">GET 10% OFF YOUR FIRST ORDER</h3>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Join the 11:11 list and unlock your first-order offer.
-            </p>
+            <h3 className="mt-3 text-3xl leading-none">{data.offer_title}</h3>
+            <p className="mt-3 text-sm text-muted-foreground">{data.offer_description}</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
