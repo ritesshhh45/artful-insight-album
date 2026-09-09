@@ -14,16 +14,322 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          discount_type: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_discount: number | null
+          min_order: number
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string
+          discount_type?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order?: number
+          value?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          discount_type?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          min_order?: number
+          value?: number
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          colour: string | null
+          id: string
+          image: string | null
+          name: string
+          order_id: string
+          price: number
+          product_id: string | null
+          qty: number
+          size: string
+        }
+        Insert: {
+          colour?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          order_id: string
+          price?: number
+          product_id?: string | null
+          qty?: number
+          size: string
+        }
+        Update: {
+          colour?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          order_id?: string
+          price?: number
+          product_id?: string | null
+          qty?: number
+          size?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          city: string
+          coupon_code: string | null
+          created_at: string
+          customer_name: string
+          discount: number
+          email: string | null
+          id: string
+          order_no: number
+          payment_method: string
+          phone: string
+          pincode: string
+          shipping: number
+          status: string
+          subtotal: number
+          total: number
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          city: string
+          coupon_code?: string | null
+          created_at?: string
+          customer_name: string
+          discount?: number
+          email?: string | null
+          id?: string
+          order_no?: number
+          payment_method?: string
+          phone: string
+          pincode: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string
+          coupon_code?: string | null
+          created_at?: string
+          customer_name?: string
+          discount?: number
+          email?: string | null
+          id?: string
+          order_no?: number
+          payment_method?: string
+          phone?: string
+          pincode?: string
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      product_stock: {
+        Row: {
+          id: string
+          product_id: string
+          size: string
+          stock: number
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          size: string
+          stock?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          size?: string
+          stock?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          colours: string[]
+          created_at: string
+          description: string
+          fit: string
+          id: string
+          images: string[]
+          is_active: boolean
+          is_best_seller: boolean
+          is_featured: boolean
+          is_new_arrival: boolean
+          mrp: number
+          name: string
+          position: number
+          price: number
+          sizes: string[]
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          colours?: string[]
+          created_at?: string
+          description?: string
+          fit?: string
+          id?: string
+          images?: string[]
+          is_active?: boolean
+          is_best_seller?: boolean
+          is_featured?: boolean
+          is_new_arrival?: boolean
+          mrp?: number
+          name: string
+          position?: number
+          price?: number
+          sizes?: string[]
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          colours?: string[]
+          created_at?: string
+          description?: string
+          fit?: string
+          id?: string
+          images?: string[]
+          is_active?: boolean
+          is_best_seller?: boolean
+          is_featured?: boolean
+          is_new_arrival?: boolean
+          mrp?: number
+          name?: string
+          position?: number
+          price?: number
+          sizes?: string[]
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      claim_admin: { Args: never; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +456,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
