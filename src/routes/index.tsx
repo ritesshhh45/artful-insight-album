@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { AnnouncementBar, Footer, Header, MobileBar } from "@/components/SiteChrome";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { OfferPopup } from "@/components/OfferPopup";
-import { discount, fits, heroImage, inr, products } from "@/lib/products";
+import { imageUrl, onImageError } from "@/lib/img";
+import { discount, FITS, homepageQuery, inr, productsQuery } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,9 +28,15 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const featured = products[1]!;
-
 function Home() {
+  const { data: products = [] } = useQuery(productsQuery());
+  const { data: home } = useQuery(homepageQuery());
+
+  const newDrop = products.filter((p) => p.is_new_arrival);
+  const drop = (newDrop.length ? newDrop : products).slice(0, 4);
+  const featured = products.find((p) => p.is_featured) ?? products[0];
+  const heroSrc = imageUrl(home?.hero_image || featured?.images[0]);
+
   return (
     <>
       <AnnouncementBar />
@@ -37,35 +45,34 @@ function Home() {
       {/* HERO */}
       <section className="relative -mt-[57px] h-dvh w-full overflow-hidden bg-ink">
         <img
-          src={heroImage}
-          alt="11:11 STORE campaign — retro mesh jersey"
+          src={heroSrc}
+          onError={onImageError}
+          alt="11:11 STORE campaign"
           className="kenburns absolute inset-0 h-full w-full object-cover object-[62%_center] md:object-[center_20%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-ink/45" />
         <div className="relative z-10 flex h-full flex-col justify-end px-5 pb-24 text-primary-foreground md:px-10 md:pb-20">
           <p className="rise eyebrow" style={{ animationDelay: "0.2s" }}>
-            11:11 STORE
+            {home?.hero_eyebrow ?? "11:11 STORE"}
           </p>
           <h1
-            className="rise mt-4 text-[clamp(3rem,12vw,10rem)] leading-[0.85]"
+            className="rise mt-4 whitespace-pre-line text-[clamp(3rem,12vw,10rem)] leading-[0.85]"
             style={{ animationDelay: "0.4s" }}
           >
-            WEAR YOUR
-            <br />
-            MOMENT.
+            {home?.hero_title ?? "WEAR YOUR\nMOMENT."}
           </h1>
           <p
             className="rise mt-5 max-w-sm text-sm text-primary-foreground/75"
             style={{ animationDelay: "0.65s" }}
           >
-            Modern men's fashion. Made for your everyday.
+            {home?.hero_subtitle ?? "Modern men's fashion. Made for your everyday."}
           </p>
           <div className="rise mt-8 flex flex-wrap gap-3" style={{ animationDelay: "0.85s" }}>
             <Link
-              to="/shop"
+              to={(home?.cta_link as "/shop") ?? "/shop"}
               className="bg-background px-9 py-4 text-[11px] font-bold tracking-[0.28em] text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
-              SHOP NOW
+              {home?.cta_text ?? "SHOP NOW"}
             </Link>
             <Link
               to="/shop"
@@ -96,8 +103,8 @@ function Home() {
           </div>
         </Reveal>
         <div className="mx-auto mt-10 grid max-w-[1400px] grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
-          {products.slice(0, 4).map((p, i) => (
-            <Reveal key={p.slug} delay={i * 90}>
+          {drop.map((p, i) => (
+            <Reveal key={p.id} delay={i * 90}>
               <ProductCard product={p} />
             </Reveal>
           ))}
@@ -105,38 +112,43 @@ function Home() {
       </section>
 
       {/* FEATURED */}
-      <section className="grid items-stretch md:grid-cols-2">
-        <img
-          src={featured.image}
-          alt={featured.name}
-          className="h-full max-h-[85vh] w-full object-cover"
-        />
-        <div className="flex flex-col justify-center bg-ink px-6 py-16 text-primary-foreground md:px-16">
-          <Reveal>
-            <p className="eyebrow text-accent">FEATURED</p>
-            <h2 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] leading-[0.95]">{featured.name}</h2>
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-2xl font-bold">{inr(featured.price)}</span>
-              <span className="text-sm text-primary-foreground/50 line-through">
-                {inr(featured.mrp)}
-              </span>
-              <span className="bg-accent px-2 py-1 text-[10px] font-bold tracking-[0.18em]">
-                {discount(featured)}% OFF
-              </span>
-            </div>
-            <p className="mt-6 max-w-md text-sm text-primary-foreground/65">
-              {featured.description}
-            </p>
-            <Link
-              to="/product/$slug"
-              params={{ slug: featured.slug }}
-              className="mt-9 inline-block bg-background px-10 py-4 text-[11px] font-bold tracking-[0.28em] text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              SHOP NOW
-            </Link>
-          </Reveal>
-        </div>
-      </section>
+      {featured && (
+        <section className="grid items-stretch md:grid-cols-2">
+          <img
+            src={imageUrl(featured.images[0])}
+            onError={onImageError}
+            alt={featured.name}
+            className="h-full max-h-[85vh] w-full object-cover"
+          />
+          <div className="flex flex-col justify-center bg-ink px-6 py-16 text-primary-foreground md:px-16">
+            <Reveal>
+              <p className="eyebrow text-accent">FEATURED</p>
+              <h2 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] leading-[0.95]">{featured.name}</h2>
+              <div className="mt-6 flex items-baseline gap-3">
+                <span className="text-2xl font-bold">{inr(featured.price)}</span>
+                <span className="text-sm text-primary-foreground/50 line-through">
+                  {inr(featured.mrp)}
+                </span>
+                {discount(featured) > 0 && (
+                  <span className="bg-accent px-2 py-1 text-[10px] font-bold tracking-[0.18em]">
+                    {discount(featured)}% OFF
+                  </span>
+                )}
+              </div>
+              <p className="mt-6 max-w-md text-sm text-primary-foreground/65">
+                {featured.description}
+              </p>
+              <Link
+                to="/product/$slug"
+                params={{ slug: featured.slug }}
+                className="mt-9 inline-block bg-background px-10 py-4 text-[11px] font-bold tracking-[0.28em] text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                SHOP NOW
+              </Link>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* SHOP BY FIT */}
       <section className="px-5 py-20 md:px-10 md:py-28">
@@ -145,26 +157,30 @@ function Home() {
           <h2 className="mt-3 text-[clamp(2rem,5vw,4rem)] leading-none">Find your silhouette.</h2>
         </Reveal>
         <div className="mx-auto mt-10 grid max-w-[1400px] grid-cols-2 gap-3 lg:grid-cols-4">
-          {fits.map((fit, i) => (
-            <Reveal key={fit} delay={i * 80}>
-              <Link
-                to="/shop"
-                search={{ fit }}
-                className="group relative block overflow-hidden bg-secondary"
-              >
-                <img
-                  src={products[(i + 2) % products.length]!.image}
-                  alt={fit}
-                  loading="lazy"
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-ink/35 transition-colors group-hover:bg-ink/15" />
-                <span className="absolute bottom-5 left-5 display text-2xl text-primary-foreground">
-                  {fit}
-                </span>
-              </Link>
-            </Reveal>
-          ))}
+          {FITS.map((fit, i) => {
+            const pic = products.find((p) => p.fit === fit) ?? products[i % (products.length || 1)];
+            return (
+              <Reveal key={fit} delay={i * 80}>
+                <Link
+                  to="/shop"
+                  search={{ fit }}
+                  className="group relative block overflow-hidden bg-secondary"
+                >
+                  <img
+                    src={imageUrl(pic?.images[0])}
+                    onError={onImageError}
+                    alt={fit}
+                    loading="lazy"
+                    className="aspect-[3/4] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-ink/35 transition-colors group-hover:bg-ink/15" />
+                  <span className="absolute bottom-5 left-5 display text-2xl text-primary-foreground">
+                    {fit}
+                  </span>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
 
@@ -204,7 +220,8 @@ function Home() {
       {/* STORY */}
       <section id="story" className="relative overflow-hidden bg-ink">
         <img
-          src={products[4]!.image}
+          src={imageUrl(products[4]?.images[0] ?? products[0]?.images[0])}
+          onError={onImageError}
           alt="11:11 STORE editorial"
           className="h-[80vh] w-full object-cover opacity-55"
         />

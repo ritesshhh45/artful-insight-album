@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { FREE_SHIPPING, useCart } from "@/lib/cart";
-import { inr } from "@/lib/products";
+import { useCart } from "@/lib/cart";
+import { FREE_SHIPPING, inr } from "@/lib/store";
+import { imageUrl, onImageError } from "@/lib/img";
 
 export function CartDrawer() {
   const cart = useCart();
   const remaining = Math.max(0, FREE_SHIPPING - cart.subtotal);
-  const shipping = cart.subtotal === 0 || remaining > 0 ? (cart.subtotal === 0 ? 0 : 79) : 0;
 
   return (
     <>
@@ -45,15 +45,16 @@ export function CartDrawer() {
           {cart.items.length === 0 && (
             <p className="py-16 text-center text-sm text-muted-foreground">Your bag is empty.</p>
           )}
-          {cart.items.map(({ line, product }) => (
-            <div key={line.slug + line.size} className="flex gap-4 border-b border-border py-4">
+          {cart.items.map((line) => (
+            <div key={line.productId + line.size} className="flex gap-4 border-b border-border py-4">
               <img
-                src={product.image}
-                alt={product.name}
+                src={imageUrl(line.image)}
+                onError={onImageError}
+                alt={line.name}
                 className="h-28 w-22 shrink-0 object-cover"
               />
               <div className="flex-1">
-                <p className="text-[12px] font-semibold tracking-wide">{product.name}</p>
+                <p className="text-[12px] font-semibold tracking-wide">{line.name}</p>
                 <p className="mt-1 text-[11px] tracking-[0.18em] text-muted-foreground">
                   SIZE {line.size}
                 </p>
@@ -61,21 +62,21 @@ export function CartDrawer() {
                   <div className="flex items-center border border-border">
                     <button
                       className="px-2 py-1 text-sm"
-                      onClick={() => cart.setQty(line.slug, line.size, line.qty - 1)}
+                      onClick={() => cart.setQty(line.productId, line.size, line.qty - 1)}
                     >
                       −
                     </button>
                     <span className="w-6 text-center text-xs">{line.qty}</span>
                     <button
                       className="px-2 py-1 text-sm"
-                      onClick={() => cart.setQty(line.slug, line.size, line.qty + 1)}
+                      onClick={() => cart.setQty(line.productId, line.size, line.qty + 1)}
                     >
                       +
                     </button>
                   </div>
-                  <span className="text-[12px] font-bold">{inr(product.price * line.qty)}</span>
+                  <span className="text-[12px] font-bold">{inr(line.price * line.qty)}</span>
                   <button
-                    onClick={() => cart.remove(line.slug, line.size)}
+                    onClick={() => cart.remove(line.productId, line.size)}
                     className="ml-auto text-[10px] tracking-[0.18em] text-muted-foreground hover:text-accent"
                   >
                     REMOVE
@@ -93,11 +94,13 @@ export function CartDrawer() {
           </div>
           <div className="mt-1 flex justify-between text-[12px]">
             <span className="text-muted-foreground">Shipping</span>
-            <span className="font-semibold">{shipping === 0 ? "FREE" : inr(shipping)}</span>
+            <span className="font-semibold">
+              {cart.shipping === 0 ? "FREE" : inr(cart.shipping)}
+            </span>
           </div>
           <div className="mt-3 flex justify-between border-t border-border pt-3 text-sm font-bold">
             <span>TOTAL</span>
-            <span>{inr(cart.subtotal + shipping)}</span>
+            <span>{inr(cart.subtotal + cart.shipping)}</span>
           </div>
           <Link
             to="/checkout"
