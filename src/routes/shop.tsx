@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AnnouncementBar, Footer, Header, MobileBar } from "@/components/SiteChrome";
 import { ProductCard } from "@/components/ProductCard";
-import { fits, products } from "@/lib/products";
+import { ALL_SIZES, FITS, productsQuery } from "@/lib/store";
 
 type Search = { fit?: string | undefined; q?: string | undefined };
 
@@ -32,8 +33,9 @@ function Shop() {
   const { fit, q } = Route.useSearch();
   const navigate = useNavigate({ from: "/shop" });
   const [size, setSize] = useState<string | null>(null);
-  const [maxPrice, setMaxPrice] = useState(1500);
+  const [maxPrice, setMaxPrice] = useState(3000);
   const [sort, setSort] = useState("featured");
+  const { data: products = [], isLoading } = useQuery(productsQuery());
 
   const list = useMemo(() => {
     let out = products.filter(
@@ -46,7 +48,7 @@ function Shop() {
     if (sort === "low") out = [...out].sort((a, b) => a.price - b.price);
     if (sort === "high") out = [...out].sort((a, b) => b.price - a.price);
     return out;
-  }, [fit, size, maxPrice, q, sort]);
+  }, [products, fit, size, maxPrice, q, sort]);
 
   return (
     <>
@@ -59,11 +61,15 @@ function Shop() {
           <input
             defaultValue={q ?? ""}
             placeholder="Search"
-            onChange={(e) => navigate({ search: (s: Search): Search => ({ ...s, q: e.target.value || undefined }) })}
+            onChange={(e) =>
+              navigate({
+                search: (s: Search): Search => ({ ...s, q: e.target.value || undefined }),
+              })
+            }
             className="border border-input bg-transparent px-3 py-2 text-xs outline-none focus:border-foreground"
           />
           <div className="flex flex-wrap gap-2">
-            {["ALL", ...fits].map((f) => {
+            {["ALL", ...FITS].map((f) => {
               const active = f === "ALL" ? !fit : fit === f;
               return (
                 <button
@@ -85,7 +91,7 @@ function Shop() {
             })}
           </div>
           <div className="flex flex-wrap gap-2">
-            {["S", "M", "L", "XL"].map((s) => (
+            {ALL_SIZES.map((s) => (
               <button
                 key={s}
                 onClick={() => setSize(size === s ? null : s)}
@@ -103,8 +109,8 @@ function Shop() {
             UPTO ₹{maxPrice}
             <input
               type="range"
-              min={500}
-              max={1500}
+              min={200}
+              max={3000}
               step={50}
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
@@ -124,10 +130,10 @@ function Shop() {
 
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-12 lg:grid-cols-4">
           {list.map((p) => (
-            <ProductCard key={p.slug} product={p} />
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
-        {list.length === 0 && (
+        {!isLoading && list.length === 0 && (
           <p className="py-20 text-center text-sm text-muted-foreground">
             No products match these filters.
           </p>
