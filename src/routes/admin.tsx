@@ -19,13 +19,13 @@ export const Route = createFileRoute("/admin")({
 
 const NAV = [
   { to: "/admin", label: "Dashboard", exact: true },
-  { to: "/admin/products", label: "Products" },
-  { to: "/admin/orders", label: "Orders" },
-  { to: "/admin/customers", label: "Customers" },
-  { to: "/admin/inventory", label: "Inventory" },
-  { to: "/admin/coupons", label: "Coupons" },
-  { to: "/admin/homepage", label: "Homepage" },
-  { to: "/admin/settings", label: "Settings" },
+  { to: "/admin/products", label: "Products", exact: false },
+  { to: "/admin/orders", label: "Orders", exact: false },
+  { to: "/admin/customers", label: "Customers", exact: false },
+  { to: "/admin/inventory", label: "Inventory", exact: false },
+  { to: "/admin/coupons", label: "Coupons", exact: false },
+  { to: "/admin/homepage", label: "Homepage", exact: false },
+  { to: "/admin/settings", label: "Settings", exact: false },
 ] as const;
 
 function AdminLayout() {
