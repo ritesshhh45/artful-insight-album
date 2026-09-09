@@ -1,56 +1,95 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { products, type Product } from "./products";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { FREE_SHIPPING, SHIPPING_FEE, type Product } from "./store";
 
-export type CartLine = { slug: string; size: string; qty: number };
+export type CartLine = {
+  productId: string;
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  size: string;
+  colour: string;
+  qty: number;
+};
 
 type CartCtx = {
-  lines: CartLine[];
+  items: CartLine[];
   open: boolean;
   setOpen: (v: boolean) => void;
-  add: (slug: string, size: string) => void;
-  remove: (slug: string, size: string) => void;
-  setQty: (slug: string, size: string, qty: number) => void;
+  add: (product: Product, size: string, colour?: string, qty?: number) => void;
+  remove: (productId: string, size: string) => void;
+  setQty: (productId: string, size: string, qty: number) => void;
+  clear: () => void;
   count: number;
   subtotal: number;
-  items: { line: CartLine; product: Product }[];
+  shipping: number;
 };
 
 const Ctx = createContext<CartCtx | null>(null);
+const KEY = "1111-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [lines, setLines] = useState<CartLine[]>([]);
+  const [items, setItems] = useState<CartLine[]>([]);
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) setItems(JSON.parse(raw) as CartLine[]);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(items));
+    } catch {
+      /* ignore */
+    }
+  }, [items]);
+
   const value = useMemo<CartCtx>(() => {
-    const items = lines
-      .map((line) => ({ line, product: products.find((p) => p.slug === line.slug)! }))
-      .filter((i) => i.product);
+    const subtotal = items.reduce((s, l) => s + l.price * l.qty, 0);
     return {
-      lines,
+      items,
       open,
       setOpen,
-      items,
-      count: lines.reduce((s, l) => s + l.qty, 0),
-      subtotal: items.reduce((s, i) => s + i.product.price * i.line.qty, 0),
-      add: (slug, size) => {
-        setLines((prev) => {
-          const found = prev.find((l) => l.slug === slug && l.size === size);
+      count: items.reduce((s, l) => s + l.qty, 0),
+      subtotal,
+      shipping: subtotal === 0 || subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE,
+      add: (product, size, colour, qty = 1) => {
+        setItems((prev) => {
+          const found = prev.find((l) => l.productId === product.id && l.size === size);
           if (found)
-            return prev.map((l) => (l === found ? { ...l, qty: l.qty + 1 } : l));
-          return [...prev, { slug, size, qty: 1 }];
+            return prev.map((l) => (l === found ? { ...l, qty: l.qty + qty } : l));
+          return [
+            ...prev,
+            {
+              productId: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              image: product.images[0] ?? "",
+              size,
+              colour: colour ?? product.colours[0] ?? "",
+              qty,
+            },
+          ];
         });
         setOpen(true);
       },
-      remove: (slug, size) =>
-        setLines((prev) => prev.filter((l) => !(l.slug === slug && l.size === size))),
-      setQty: (slug, size, qty) =>
-        setLines((prev) =>
+      remove: (productId, size) =>
+        setItems((prev) => prev.filter((l) => !(l.productId === productId && l.size === size))),
+      setQty: (productId, size, qty) =>
+        setItems((prev) =>
           prev
-            .map((l) => (l.slug === slug && l.size === size ? { ...l, qty } : l))
+            .map((l) => (l.productId === productId && l.size === size ? { ...l, qty } : l))
             .filter((l) => l.qty > 0),
         ),
+      clear: () => setItems([]),
     };
-  }, [lines, open]);
+  }, [items, open]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -61,4 +100,4 @@ export function useCart() {
   return ctx;
 }
 
-export const FREE_SHIPPING = 999;
+export { FREE_SHIPPING };
