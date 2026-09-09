@@ -15,8 +15,12 @@ export function useAuth() {
         if (active) setIsAdmin(false);
         return;
       }
-      // Owner bootstrap: the authorised email claims the admin role server-side.
-      await supabase.rpc("claim_admin");
+      // Owner bootstrap: the authorised email is granted the admin role server-side.
+      try {
+        await ensureAdmin();
+      } catch {
+        /* not the owner account */
+      }
       const { data } = await supabase
         .from("user_roles")
         .select("role")
