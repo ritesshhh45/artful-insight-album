@@ -117,6 +117,8 @@ function AdminProducts() {
         is_best_seller: d.is_best_seller,
         is_new_arrival: d.is_new_arrival,
         is_active: d.is_active,
+        is_sale: d.is_sale,
+        sku: d.sku.trim(),
       };
 
       let id = d.id;
@@ -239,10 +241,18 @@ function AdminProducts() {
                 value={draft.category}
                 onChange={(e) => setDraft({ ...draft, category: e.target.value })}
               >
-                {CATEGORIES.map((c) => (
+                {categoryNames.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <p className={label}>SKU</p>
+              <input
+                className={input}
+                value={draft.sku}
+                onChange={(e) => setDraft({ ...draft, sku: e.target.value })}
+              />
             </div>
             <div>
               <p className={label}>FIT</p>
@@ -365,6 +375,7 @@ function AdminProducts() {
                   ["is_featured", "Featured"],
                   ["is_best_seller", "Best seller"],
                   ["is_new_arrival", "New arrival"],
+                  ["is_sale", "On sale"],
                   ["is_active", "Visible in store"],
                 ] as const
               ).map(([k, t]) => (
