@@ -8,6 +8,7 @@ import {
   ALL_SIZES,
   CATEGORIES,
   FITS,
+  categoriesQuery,
   discount,
   inr,
   productsQuery,
