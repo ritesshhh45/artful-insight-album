@@ -44,7 +44,7 @@ function HomepageAdmin() {
       .upload(path, file, { contentType: file.type });
     setUploading(false);
     if (error) return setMsg(`Upload failed: ${error.message}`);
-    setForm({ ...form, hero_image: path });
+    setForm({ ...form, hero_image: await storageUrl(supabase, path) });
   };
 
   if (!form) return <p className="text-sm text-muted-foreground">Loading…</p>;

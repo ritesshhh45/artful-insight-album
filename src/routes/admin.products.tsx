@@ -169,7 +169,7 @@ function AdminProducts() {
         setMsg(`Upload failed: ${error.message}`);
         return;
       }
-      paths.push(path);
+      paths.push(await storageUrl(supabase, path));
     }
     setDraft({ ...draft, images: [...draft.images, ...paths] });
     setUploading(false);
