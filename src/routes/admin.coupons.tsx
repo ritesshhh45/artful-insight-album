@@ -15,7 +15,9 @@ type Draft = {
   value: number;
   min_order: number;
   max_discount: number | null;
+  starts_at: string;
   expires_at: string;
+  is_automatic: boolean;
   is_active: boolean;
 };
 
@@ -26,7 +28,9 @@ const empty = (): Draft => ({
   value: 10,
   min_order: 0,
   max_discount: null,
+  starts_at: "",
   expires_at: "",
+  is_automatic: false,
   is_active: true,
 });
 
