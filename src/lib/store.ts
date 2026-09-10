@@ -19,6 +19,8 @@ export type Product = {
   is_new_arrival: boolean;
   is_active: boolean;
   position: number;
+  sku: string;
+  is_sale: boolean;
   product_stock?: StockRow[];
 };
 
