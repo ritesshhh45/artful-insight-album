@@ -89,6 +89,11 @@ export const DEFAULT_HOMEPAGE: Homepage = {
   offer_description: "Join the 11:11 list and unlock your first-order offer.",
   offer_code: "WELCOME10",
   offer_active: true,
+  story_title: "THE 11:11 MOMENT",
+  story_text: "“11:11 is a moment to make a wish, make a choice, and make it yours.”",
+  story_image: "",
+  final_cta_title: "MAKE YOUR\n11:11 MOMENT.",
+  final_cta_text: "SHOP THE COLLECTION",
 };
 
 export const FITS = ["OVERSIZED", "STRAIGHT FIT", "BAGGY", "RELAXED"] as const;
