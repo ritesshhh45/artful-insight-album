@@ -34,6 +34,8 @@ type Draft = {
   is_best_seller: boolean;
   is_new_arrival: boolean;
   is_active: boolean;
+  is_sale: boolean;
+  sku: string;
   stock: Record<string, number>;
 };
 
@@ -52,6 +54,8 @@ const empty = (): Draft => ({
   is_best_seller: false,
   is_new_arrival: true,
   is_active: true,
+  is_sale: false,
+  sku: "",
   stock: {},
 });
 
