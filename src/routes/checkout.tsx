@@ -224,7 +224,9 @@ function Checkout() {
                   </div>
                   {off > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-muted-foreground">
+                        Discount{offerLabel ? ` · ${offerLabel}` : ""}
+                      </span>
                       <span>−{inr(off)}</span>
                     </div>
                   )}
