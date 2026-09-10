@@ -15,7 +15,9 @@ type Draft = {
   value: number;
   min_order: number;
   max_discount: number | null;
+  starts_at: string;
   expires_at: string;
+  is_automatic: boolean;
   is_active: boolean;
 };
 
@@ -26,7 +28,9 @@ const empty = (): Draft => ({
   value: 10,
   min_order: 0,
   max_discount: null,
+  starts_at: "",
   expires_at: "",
+  is_automatic: false,
   is_active: true,
 });
 
@@ -58,7 +62,9 @@ function Coupons() {
         value: Number(d.value),
         min_order: Number(d.min_order),
         max_discount: d.max_discount ? Number(d.max_discount) : null,
+        starts_at: d.starts_at ? new Date(d.starts_at).toISOString() : null,
         expires_at: d.expires_at ? new Date(d.expires_at).toISOString() : null,
+        is_automatic: d.is_automatic,
         is_active: d.is_active,
       };
       const { error } = d.id
@@ -155,7 +161,16 @@ function Coupons() {
               />
             </div>
             <div>
-              <p className={label}>EXPIRY (optional)</p>
+              <p className={label}>START DATE (optional)</p>
+              <input
+                type="date"
+                className={input}
+                value={draft.starts_at}
+                onChange={(e) => setDraft({ ...draft, starts_at: e.target.value })}
+              />
+            </div>
+            <div>
+              <p className={label}>END DATE (optional)</p>
               <input
                 type="date"
                 className={input}
@@ -163,7 +178,15 @@ function Coupons() {
                 onChange={(e) => setDraft({ ...draft, expires_at: e.target.value })}
               />
             </div>
-            <label className="mt-6 flex items-center gap-2 text-[12px]">
+            <label className="flex items-center gap-2 text-[12px]">
+              <input
+                type="checkbox"
+                checked={draft.is_automatic}
+                onChange={(e) => setDraft({ ...draft, is_automatic: e.target.checked })}
+              />
+              Automatic — applies without a code
+            </label>
+            <label className="flex items-center gap-2 text-[12px]">
               <input
                 type="checkbox"
                 checked={draft.is_active}
@@ -213,7 +236,9 @@ function Coupons() {
                     value: c.value,
                     min_order: c.min_order,
                     max_discount: c.max_discount,
+                    starts_at: c.starts_at ? c.starts_at.slice(0, 10) : "",
                     expires_at: c.expires_at ? c.expires_at.slice(0, 10) : "",
+                    is_automatic: c.is_automatic ?? false,
                     is_active: c.is_active,
                   })
                 }

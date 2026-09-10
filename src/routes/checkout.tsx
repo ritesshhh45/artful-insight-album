@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AnnouncementBar, Footer, Header } from "@/components/SiteChrome";
 import { useCart } from "@/lib/cart";
-import { couponDiscount, findCoupon, inr, type Coupon } from "@/lib/store";
+import {
+  autoCouponsQuery,
+  bestAutoDiscount,
+  couponDiscount,
+  findCoupon,
+  inr,
+  type Coupon,
+} from "@/lib/store";
 import { imageUrl, onImageError } from "@/lib/img";
 import { placeOrder as placeOrderFn } from "@/lib/orders.functions";
 
@@ -43,7 +51,12 @@ function Checkout() {
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
 
-  const off = coupon ? couponDiscount(coupon, cart.subtotal) : 0;
+  const { data: autoCoupons = [] } = useQuery(autoCouponsQuery());
+  const auto = bestAutoDiscount(autoCoupons, cart.subtotal);
+  const manualOff = coupon ? couponDiscount(coupon, cart.subtotal) : 0;
+  const useAuto = (auto?.off ?? 0) > manualOff;
+  const off = Math.max(manualOff, auto?.off ?? 0);
+  const offerLabel = useAuto ? (auto?.coupon.description || auto?.coupon.code) : coupon?.code;
   const total = Math.max(0, cart.subtotal - off) + cart.shipping;
 
   const applyCoupon = async () => {
@@ -211,7 +224,9 @@ function Checkout() {
                   </div>
                   {off > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-muted-foreground">
+                        Discount{offerLabel ? ` · ${offerLabel}` : ""}
+                      </span>
                       <span>−{inr(off)}</span>
                     </div>
                   )}

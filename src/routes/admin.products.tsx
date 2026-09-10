@@ -8,6 +8,7 @@ import {
   ALL_SIZES,
   CATEGORIES,
   FITS,
+  categoriesQuery,
   discount,
   inr,
   productsQuery,
@@ -33,6 +34,8 @@ type Draft = {
   is_best_seller: boolean;
   is_new_arrival: boolean;
   is_active: boolean;
+  is_sale: boolean;
+  sku: string;
   stock: Record<string, number>;
 };
 
@@ -51,6 +54,8 @@ const empty = (): Draft => ({
   is_best_seller: false,
   is_new_arrival: true,
   is_active: true,
+  is_sale: false,
+  sku: "",
   stock: {},
 });
 
@@ -70,6 +75,8 @@ const toDraft = (p: Product): Draft => ({
   is_best_seller: p.is_best_seller,
   is_new_arrival: p.is_new_arrival,
   is_active: p.is_active,
+  is_sale: p.is_sale ?? false,
+  sku: p.sku ?? "",
   stock: Object.fromEntries((p.product_stock ?? []).map((s) => [s.size, s.stock])),
 });
 
@@ -82,6 +89,8 @@ const slugify = (s: string) =>
 function AdminProducts() {
   const qc = useQueryClient();
   const { data: products = [], isLoading } = useQuery(productsQuery(true));
+  const { data: categoryRows = [] } = useQuery(categoriesQuery(true));
+  const categoryNames = categoryRows.length ? categoryRows.map((c) => c.name) : [...CATEGORIES];
   const [draft, setDraft] = useState<Draft | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -108,6 +117,8 @@ function AdminProducts() {
         is_best_seller: d.is_best_seller,
         is_new_arrival: d.is_new_arrival,
         is_active: d.is_active,
+        is_sale: d.is_sale,
+        sku: d.sku.trim(),
       };
 
       let id = d.id;
@@ -230,10 +241,18 @@ function AdminProducts() {
                 value={draft.category}
                 onChange={(e) => setDraft({ ...draft, category: e.target.value })}
               >
-                {CATEGORIES.map((c) => (
+                {categoryNames.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <p className={label}>SKU</p>
+              <input
+                className={input}
+                value={draft.sku}
+                onChange={(e) => setDraft({ ...draft, sku: e.target.value })}
+              />
             </div>
             <div>
               <p className={label}>FIT</p>
@@ -356,6 +375,7 @@ function AdminProducts() {
                   ["is_featured", "Featured"],
                   ["is_best_seller", "Best seller"],
                   ["is_new_arrival", "New arrival"],
+                  ["is_sale", "On sale"],
                   ["is_active", "Visible in store"],
                 ] as const
               ).map(([k, t]) => (
