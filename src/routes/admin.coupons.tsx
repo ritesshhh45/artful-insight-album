@@ -161,7 +161,16 @@ function Coupons() {
               />
             </div>
             <div>
-              <p className={label}>EXPIRY (optional)</p>
+              <p className={label}>START DATE (optional)</p>
+              <input
+                type="date"
+                className={input}
+                value={draft.starts_at}
+                onChange={(e) => setDraft({ ...draft, starts_at: e.target.value })}
+              />
+            </div>
+            <div>
+              <p className={label}>END DATE (optional)</p>
               <input
                 type="date"
                 className={input}
@@ -169,7 +178,15 @@ function Coupons() {
                 onChange={(e) => setDraft({ ...draft, expires_at: e.target.value })}
               />
             </div>
-            <label className="mt-6 flex items-center gap-2 text-[12px]">
+            <label className="flex items-center gap-2 text-[12px]">
+              <input
+                type="checkbox"
+                checked={draft.is_automatic}
+                onChange={(e) => setDraft({ ...draft, is_automatic: e.target.checked })}
+              />
+              Automatic — applies without a code
+            </label>
+            <label className="flex items-center gap-2 text-[12px]">
               <input
                 type="checkbox"
                 checked={draft.is_active}
