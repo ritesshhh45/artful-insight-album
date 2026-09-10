@@ -30,8 +30,30 @@ export type Coupon = {
   min_order: number;
   max_discount: number | null;
   expires_at: string | null;
+  starts_at: string | null;
+  is_automatic: boolean;
   is_active: boolean;
   description: string;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  position: number;
+  is_active: boolean;
+};
+
+export type Collection = {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle: string;
+  image: string;
+  position: number;
+  is_active: boolean;
+  show_on_home: boolean;
+  collection_products?: { product_id: string; position: number }[];
 };
 
 export type Homepage = {
@@ -47,6 +69,11 @@ export type Homepage = {
   offer_description: string;
   offer_code: string;
   offer_active: boolean;
+  story_title: string;
+  story_text: string;
+  story_image: string;
+  final_cta_title: string;
+  final_cta_text: string;
 };
 
 export const DEFAULT_HOMEPAGE: Homepage = {
