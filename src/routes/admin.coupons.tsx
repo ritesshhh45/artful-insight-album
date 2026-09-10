@@ -62,7 +62,9 @@ function Coupons() {
         value: Number(d.value),
         min_order: Number(d.min_order),
         max_discount: d.max_discount ? Number(d.max_discount) : null,
+        starts_at: d.starts_at ? new Date(d.starts_at).toISOString() : null,
         expires_at: d.expires_at ? new Date(d.expires_at).toISOString() : null,
+        is_automatic: d.is_automatic,
         is_active: d.is_active,
       };
       const { error } = d.id
