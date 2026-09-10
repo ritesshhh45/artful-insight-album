@@ -97,7 +97,15 @@ export function Footer() {
       </div>
       <div className="mx-auto mt-12 flex max-w-[1400px] flex-col gap-2 text-[10px] tracking-[0.24em] text-primary-foreground/40 sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} 11:11 STORE</p>
-        <p className="tracking-[0.2em]">Developed by Ritesh Pawar</p>
+        <div className="flex items-center gap-4">
+          <p className="tracking-[0.2em]">Developed by Ritesh Pawar</p>
+          <Link
+            to="/auth"
+            className="tracking-[0.24em] text-primary-foreground/40 underline-offset-4 transition-colors hover:text-primary-foreground/80 hover:underline"
+          >
+            OWNER LOGIN
+          </Link>
+        </div>
       </div>
     </footer>
   );

@@ -17,10 +17,30 @@ export const Route = createFileRoute("/api/public/img/$")({
 
         if (!path) return new Response("Not found", { status: 404 });
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin.storage.from("product-images").download(path);
+        // Public read is allowed on this bucket, so the publishable key is enough.
+        // Falls back to the privileged client if that ever fails.
+        const { createClient } = await import("@supabase/supabase-js");
+        const publicClient = createClient(
+          process.env["SUPABASE_URL"]!,
+          process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+          { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+        );
 
-        if (error || !data) return new Response("Not found", { status: 404 });
+        let data: Blob | null = null;
+        const first = await publicClient.storage.from("product-images").download(path);
+        data = first.data;
+
+        if (!data) {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            const second = await supabaseAdmin.storage.from("product-images").download(path);
+            data = second.data;
+          } catch {
+            data = null;
+          }
+        }
+
+        if (!data) return new Response("Not found", { status: 404 });
 
         return new Response(await data.arrayBuffer(), {
           headers: {
