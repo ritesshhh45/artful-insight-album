@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { btn, card, h1, input, label } from "@/lib/admin-ui";
-import { imageUrl, onImageError } from "@/lib/img";
+import { imageUrl, onImageError, storageUrl } from "@/lib/img";
 import { homepageQuery, productsQuery, type Homepage } from "@/lib/store";
 
 export const Route = createFileRoute("/admin/homepage")({ component: HomepageAdmin });
@@ -44,7 +44,7 @@ function HomepageAdmin() {
       .upload(path, file, { contentType: file.type });
     setUploading(false);
     if (error) return setMsg(`Upload failed: ${error.message}`);
-    setForm({ ...form, hero_image: path });
+    setForm({ ...form, hero_image: await storageUrl(supabase, path) });
   };
 
   if (!form) return <p className="text-sm text-muted-foreground">Loading…</p>;

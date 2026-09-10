@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { btn, btnGhost, card, h1, input, label } from "@/lib/admin-ui";
-import { imageUrl, onImageError } from "@/lib/img";
+import { imageUrl, onImageError, storageUrl } from "@/lib/img";
 import {
   ALL_SIZES,
   CATEGORIES,
@@ -169,7 +169,7 @@ function AdminProducts() {
         setMsg(`Upload failed: ${error.message}`);
         return;
       }
-      paths.push(path);
+      paths.push(await storageUrl(supabase, path));
     }
     setDraft({ ...draft, images: [...draft.images, ...paths] });
     setUploading(false);
