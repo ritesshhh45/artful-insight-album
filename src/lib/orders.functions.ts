@@ -69,8 +69,44 @@ export const placeOrder = createServerFn({ method: "POST" })
 
     const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
 
+    type CouponRow = {
+      code: string;
+      discount_type: string;
+      value: number;
+      min_order: number;
+      max_discount: number | null;
+      expires_at: string | null;
+      starts_at: string | null;
+      is_automatic: boolean;
+    };
+
+    const now = new Date();
+    const valueOf = (c: CouponRow): number => {
+      if (c.starts_at && new Date(c.starts_at) > now) return 0;
+      if (c.expires_at && new Date(c.expires_at) < now) return 0;
+      if (subtotal < c.min_order) return 0;
+      let off = c.discount_type === "flat" ? c.value : Math.round((subtotal * c.value) / 100);
+      if (c.max_discount) off = Math.min(off, c.max_discount);
+      return Math.min(off, subtotal);
+    };
+
     let discount = 0;
     let code: string | null = null;
+
+    // Automatic (festival) offers apply on their own, no code needed.
+    const { data: autos } = await supabaseAdmin
+      .from("coupons")
+      .select("*")
+      .eq("is_active", true)
+      .eq("is_automatic", true);
+    for (const raw of (autos ?? []) as unknown as CouponRow[]) {
+      const off = valueOf(raw);
+      if (off > discount) {
+        discount = off;
+        code = raw.code;
+      }
+    }
+
     if (data.coupon_code) {
       const { data: coupon } = await supabaseAdmin
         .from("coupons")
@@ -78,21 +114,10 @@ export const placeOrder = createServerFn({ method: "POST" })
         .ilike("code", data.coupon_code)
         .eq("is_active", true)
         .maybeSingle();
-      const c = coupon as
-        | {
-            code: string;
-            discount_type: string;
-            value: number;
-            min_order: number;
-            max_discount: number | null;
-            expires_at: string | null;
-          }
-        | null;
-      if (c && subtotal >= c.min_order && (!c.expires_at || new Date(c.expires_at) > new Date())) {
-        discount =
-          c.discount_type === "flat" ? c.value : Math.round((subtotal * c.value) / 100);
-        if (c.max_discount) discount = Math.min(discount, c.max_discount);
-        discount = Math.min(discount, subtotal);
+      const c = coupon as unknown as CouponRow | null;
+      const off = c ? valueOf(c) : 0;
+      if (c && off > discount) {
+        discount = off;
         code = c.code;
       }
     }

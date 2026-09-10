@@ -157,9 +157,15 @@ export const productsQuery = (includeInactive = false) => ({
 
 export const homepageQuery = () => ({ queryKey: ["homepage"], queryFn: fetchHomepage });
 
+export function couponLive(coupon: Coupon, when = new Date()): boolean {
+  if (!coupon.is_active) return false;
+  if (coupon.starts_at && new Date(coupon.starts_at) > when) return false;
+  if (coupon.expires_at && new Date(coupon.expires_at) < when) return false;
+  return true;
+}
+
 export function couponDiscount(coupon: Coupon, subtotal: number): number {
-  if (!coupon.is_active) return 0;
-  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) return 0;
+  if (!couponLive(coupon)) return 0;
   if (subtotal < coupon.min_order) return 0;
   let off =
     coupon.discount_type === "flat" ? coupon.value : Math.round((subtotal * coupon.value) / 100);
@@ -173,6 +179,72 @@ export async function findCoupon(code: string): Promise<Coupon | null> {
     .select("*")
     .ilike("code", code.trim())
     .eq("is_active", true)
+    .eq("is_automatic", false)
     .maybeSingle();
   return (data as unknown as Coupon) ?? null;
+}
+
+/** Festival-style offers that apply without the customer typing a code. */
+export async function fetchAutoCoupons(): Promise<Coupon[]> {
+  const { data } = await supabase
+    .from("coupons")
+    .select("*")
+    .eq("is_active", true)
+    .eq("is_automatic", true);
+  return ((data ?? []) as unknown as Coupon[]).filter((c) => couponLive(c));
+}
+
+export const autoCouponsQuery = () => ({
+  queryKey: ["auto-coupons"],
+  queryFn: fetchAutoCoupons,
+});
+
+/** Picks the automatic offer that saves the customer the most. */
+export function bestAutoDiscount(
+  coupons: Coupon[],
+  subtotal: number,
+): { coupon: Coupon; off: number } | null {
+  let best: { coupon: Coupon; off: number } | null = null;
+  for (const c of coupons) {
+    const off = couponDiscount(c, subtotal);
+    if (off > 0 && (!best || off > best.off)) best = { coupon: c, off };
+  }
+  return best;
+}
+
+export async function fetchCategories(includeInactive = false): Promise<Category[]> {
+  let q = supabase.from("categories").select("*").order("position").order("name");
+  if (!includeInactive) q = q.eq("is_active", true);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as unknown as Category[];
+}
+
+export const categoriesQuery = (includeInactive = false) => ({
+  queryKey: ["categories", includeInactive],
+  queryFn: () => fetchCategories(includeInactive),
+});
+
+export async function fetchCollections(includeInactive = false): Promise<Collection[]> {
+  let q = supabase
+    .from("collections")
+    .select("*, collection_products(product_id, position)")
+    .order("position");
+  if (!includeInactive) q = q.eq("is_active", true);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as unknown as Collection[];
+}
+
+export const collectionsQuery = (includeInactive = false) => ({
+  queryKey: ["collections", includeInactive],
+  queryFn: () => fetchCollections(includeInactive),
+});
+
+/** Products chosen for a section, in the order the owner arranged them. */
+export function collectionProducts(collection: Collection, products: Product[]): Product[] {
+  const links = [...(collection.collection_products ?? [])].sort((a, b) => a.position - b.position);
+  return links
+    .map((l) => products.find((p) => p.id === l.product_id))
+    .filter((p): p is Product => !!p && p.is_active);
 }
