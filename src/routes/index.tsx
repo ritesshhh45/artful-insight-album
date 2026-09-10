@@ -227,9 +227,12 @@ function Home() {
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-primary-foreground">
           <Reveal>
-            <h2 className="text-[clamp(2.5rem,8vw,7rem)] leading-none">THE 11:11 MOMENT</h2>
+            <h2 className="text-[clamp(2.5rem,8vw,7rem)] leading-none">
+              {home?.story_title || "THE 11:11 MOMENT"}
+            </h2>
             <p className="mx-auto mt-6 max-w-xl text-sm text-primary-foreground/75 md:text-base">
-              “11:11 is a moment to make a wish, make a choice, and make it yours.”
+              {home?.story_text ||
+                "“11:11 is a moment to make a wish, make a choice, and make it yours.”"}
             </p>
           </Reveal>
         </div>
@@ -238,16 +241,14 @@ function Home() {
       {/* FINAL CTA */}
       <section className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-24 text-center">
         <Reveal>
-          <h2 className="text-[clamp(2.5rem,8vw,7rem)] leading-[0.9]">
-            MAKE YOUR
-            <br />
-            11:11 MOMENT.
+          <h2 className="whitespace-pre-line text-[clamp(2.5rem,8vw,7rem)] leading-[0.9]">
+            {home?.final_cta_title || "MAKE YOUR\n11:11 MOMENT."}
           </h2>
           <Link
             to="/shop"
             className="mt-10 inline-block bg-primary px-12 py-5 text-[11px] font-bold tracking-[0.3em] text-primary-foreground transition-colors hover:bg-accent"
           >
-            SHOP THE COLLECTION
+            {home?.final_cta_text || "SHOP THE COLLECTION"}
           </Link>
         </Reveal>
       </section>
