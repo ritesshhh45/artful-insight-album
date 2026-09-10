@@ -135,6 +135,24 @@ function HomepageAdmin() {
       </div>
 
       <div className={card}>
+        <p className="text-[11px] font-bold tracking-[0.2em]">BRAND STORY & FINAL CTA</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {field("story_title", "STORY TITLE")}
+          {field("story_text", "STORY TEXT")}
+          <div>
+            <p className={label}>FINAL CTA TITLE (use a new line for the break)</p>
+            <textarea
+              rows={2}
+              className={input}
+              value={form.final_cta_title}
+              onChange={(e) => setForm({ ...form, final_cta_title: e.target.value })}
+            />
+          </div>
+          {field("final_cta_text", "FINAL CTA BUTTON TEXT")}
+        </div>
+      </div>
+
+      <div className={card}>
         <p className="text-[11px] font-bold tracking-[0.2em]">NEW DROP & FEATURED</p>
         <p className="mt-3 text-[12px] text-muted-foreground">
           The homepage shows products marked “New arrival” in the drop grid and the product marked

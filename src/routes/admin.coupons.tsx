@@ -236,7 +236,9 @@ function Coupons() {
                     value: c.value,
                     min_order: c.min_order,
                     max_discount: c.max_discount,
+                    starts_at: c.starts_at ? c.starts_at.slice(0, 10) : "",
                     expires_at: c.expires_at ? c.expires_at.slice(0, 10) : "",
+                    is_automatic: c.is_automatic ?? false,
                     is_active: c.is_active,
                   })
                 }
