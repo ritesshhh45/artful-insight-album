@@ -39,6 +39,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { data: products = [] } = useQuery(productsQuery());
   const { data: home } = useQuery(homepageQuery());
+  const { data: collections = [] } = useQuery(collectionsQuery());
 
   const newDrop = products.filter((p) => p.is_new_arrival);
   const drop = (newDrop.length ? newDrop : products).slice(0, 4);
