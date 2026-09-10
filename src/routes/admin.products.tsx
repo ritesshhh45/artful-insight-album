@@ -75,6 +75,8 @@ const toDraft = (p: Product): Draft => ({
   is_best_seller: p.is_best_seller,
   is_new_arrival: p.is_new_arrival,
   is_active: p.is_active,
+  is_sale: p.is_sale ?? false,
+  sku: p.sku ?? "",
   stock: Object.fromEntries((p.product_stock ?? []).map((s) => [s.size, s.stock])),
 });
 
@@ -87,6 +89,8 @@ const slugify = (s: string) =>
 function AdminProducts() {
   const qc = useQueryClient();
   const { data: products = [], isLoading } = useQuery(productsQuery(true));
+  const { data: categoryRows = [] } = useQuery(categoriesQuery(true));
+  const categoryNames = categoryRows.length ? categoryRows.map((c) => c.name) : [...CATEGORIES];
   const [draft, setDraft] = useState<Draft | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
