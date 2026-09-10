@@ -1,0 +1,1 @@
+CREATE POLICY "public read product images" ON storage.objects FOR SELECT TO anon USING (bucket_id = 'product-images');
