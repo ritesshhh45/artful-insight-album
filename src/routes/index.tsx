@@ -5,7 +5,15 @@ import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { OfferPopup } from "@/components/OfferPopup";
 import { imageUrl, onImageError } from "@/lib/img";
-import { discount, FITS, homepageQuery, inr, productsQuery } from "@/lib/store";
+import {
+  collectionProducts,
+  collectionsQuery,
+  discount,
+  FITS,
+  homepageQuery,
+  inr,
+  productsQuery,
+} from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -110,6 +118,38 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {/* OWNER-MANAGED SECTIONS */}
+      {collections
+        .filter((c) => c.show_on_home && collectionProducts(c, products).length > 0)
+        .map((c) => (
+          <section key={c.id} className="px-5 pb-10 md:px-10">
+            <Reveal className="mx-auto max-w-[1400px]">
+              <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-6">
+                <div>
+                  <p className="eyebrow text-accent">{c.title}</p>
+                  {c.subtitle && (
+                    <h2 className="mt-3 text-[clamp(1.6rem,4vw,3rem)] leading-none">
+                      {c.subtitle}
+                    </h2>
+                  )}
+                </div>
+                <Link to="/shop" className="eyebrow border-b border-foreground pb-1 hover:text-accent">
+                  VIEW ALL
+                </Link>
+              </div>
+            </Reveal>
+            <div className="mx-auto mt-10 grid max-w-[1400px] grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4">
+              {collectionProducts(c, products)
+                .slice(0, 8)
+                .map((p, i) => (
+                  <Reveal key={p.id} delay={i * 80}>
+                    <ProductCard product={p} />
+                  </Reveal>
+                ))}
+            </div>
+          </section>
+        ))}
 
       {/* FEATURED */}
       {featured && (
