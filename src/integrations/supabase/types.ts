@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          position: number
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          position?: number
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          position?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      collection_products: {
+        Row: {
+          collection_id: string
+          id: string
+          position: number
+          product_id: string
+        }
+        Insert: {
+          collection_id: string
+          id?: string
+          position?: number
+          product_id: string
+        }
+        Update: {
+          collection_id?: string
+          id?: string
+          position?: number
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_products_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          created_at: string
+          id: string
+          image: string
+          is_active: boolean
+          position: number
+          show_on_home: boolean
+          slug: string
+          subtitle: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image?: string
+          is_active?: boolean
+          position?: number
+          show_on_home?: boolean
+          slug: string
+          subtitle?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image?: string
+          is_active?: boolean
+          position?: number
+          show_on_home?: boolean
+          slug?: string
+          subtitle?: string
+          title?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           code: string
@@ -23,8 +122,10 @@ export type Database = {
           expires_at: string | null
           id: string
           is_active: boolean
+          is_automatic: boolean
           max_discount: number | null
           min_order: number
+          starts_at: string | null
           value: number
         }
         Insert: {
@@ -35,8 +136,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          is_automatic?: boolean
           max_discount?: number | null
           min_order?: number
+          starts_at?: string | null
           value?: number
         }
         Update: {
@@ -47,8 +150,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          is_automatic?: boolean
           max_discount?: number | null
           min_order?: number
+          starts_at?: string | null
           value?: number
         }
         Relationships: []
@@ -206,11 +311,13 @@ export type Database = {
           is_best_seller: boolean
           is_featured: boolean
           is_new_arrival: boolean
+          is_sale: boolean
           mrp: number
           name: string
           position: number
           price: number
           sizes: string[]
+          sku: string
           slug: string
           updated_at: string
         }
@@ -226,11 +333,13 @@ export type Database = {
           is_best_seller?: boolean
           is_featured?: boolean
           is_new_arrival?: boolean
+          is_sale?: boolean
           mrp?: number
           name: string
           position?: number
           price?: number
           sizes?: string[]
+          sku?: string
           slug: string
           updated_at?: string
         }
@@ -246,11 +355,13 @@ export type Database = {
           is_best_seller?: boolean
           is_featured?: boolean
           is_new_arrival?: boolean
+          is_sale?: boolean
           mrp?: number
           name?: string
           position?: number
           price?: number
           sizes?: string[]
+          sku?: string
           slug?: string
           updated_at?: string
         }
